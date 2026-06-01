@@ -1,0 +1,491 @@
+/* ============================================================
+   英雄之路 scoped styles —— 全部在 .heroes-root 下，零污染
+   ============================================================ */
+
+.heroes-root {
+  --hr-bg: #1a0f1f;
+  --hr-ink: #2a1f30;
+  --hr-card: #3a2a45;
+  --hr-card-light: #4d3a5e;
+  --hr-gold: #d4a849;
+  --hr-gold-light: #ffd87a;
+  --hr-cream: #f4e9d4;
+  --hr-red: #c83232;
+  --hr-blue: #4a7fc8;
+  --hr-green: #5fa84a;
+  --hr-purple: #8b5cd4;
+
+  background: var(--hr-bg);
+  color: var(--hr-cream);
+  font-family: var(--font-heroes-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.heroes-root.heroes-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 168, 73, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(139, 92, 212, 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(74, 127, 200, 0.1), transparent 60%),
+    var(--hr-bg);
+  background-attachment: fixed;
+}
+
+.heroes-root .hr-display {
+  font-family: var(--font-heroes-display), serif;
+  letter-spacing: 0.05em;
+}
+
+.heroes-root .hr-text-gold { color: var(--hr-gold-light); }
+
+/* ──────── 通用面板 ──────── */
+.heroes-root .hr-panel {
+  background: linear-gradient(180deg, var(--hr-card) 0%, var(--hr-ink) 100%);
+  border: 2px solid var(--hr-gold);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4) inset,
+    0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.heroes-root .hr-panel-soft {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* ──────── 按钮 ──────── */
+.heroes-root .hr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-family: var(--font-heroes-display), serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  border-radius: 12px;
+  border: 2px solid var(--hr-gold);
+  background: linear-gradient(180deg, var(--hr-gold-light) 0%, var(--hr-gold) 100%);
+  color: #2a1f30;
+  cursor: pointer;
+  transition: transform 100ms;
+  box-shadow: 0 4px 0 #8c6e2e, 0 6px 12px rgba(0, 0, 0, 0.4);
+  user-select: none;
+}
+.heroes-root .hr-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #8c6e2e, 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+.heroes-root .hr-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: saturate(0.5);
+}
+
+.heroes-root .hr-btn-secondary {
+  background: linear-gradient(180deg, var(--hr-card-light) 0%, var(--hr-card) 100%);
+  color: var(--hr-cream);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.heroes-root .hr-btn-danger {
+  background: linear-gradient(180deg, #e85a5a 0%, var(--hr-red) 100%);
+  color: white;
+  border-color: #8a1f1f;
+  box-shadow: 0 3px 0 #6a1717;
+}
+
+/* ──────── 战场 ──────── */
+
+/* 战场容器 */
+.heroes-root .hr-board-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* 竖屏战场：5 列 × 8 行，长宽比 5:8 */
+.heroes-root .hr-board {
+  position: relative;
+  /* 用 viewport 高度限制不让战场超出屏幕 */
+  height: min(72vh, 640px);
+  aspect-ratio: 5 / 8;
+  /* 防止极宽屏幕上变得过宽 */
+  max-width: 96vw;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  border: 2px solid rgba(212, 168, 73, 0.3);
+  padding: 4px;
+}
+
+/* 网格层 */
+.heroes-root .hr-board-grid {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 2px;
+}
+
+.heroes-root .hr-unit-layer {
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
+}
+
+.heroes-root .hr-cell {
+  background: rgba(244, 233, 212, 0.06);
+  border: 1px solid rgba(244, 233, 212, 0.1);
+  border-radius: 3px;
+  position: relative;
+  transition: background 120ms;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 布阵区域：左侧 2 列空格淡蓝色提示 */
+.heroes-root .hr-cell-setup-zone {
+  background: rgba(74, 127, 200, 0.12);
+  border-color: rgba(74, 127, 200, 0.3);
+}
+
+/* 可放置格子：选中单位后金色高亮 */
+.heroes-root .hr-cell-placeable {
+  background: rgba(212, 168, 73, 0.25) !important;
+  border-color: var(--hr-gold) !important;
+  cursor: pointer;
+  animation: hr-pulse 1.4s ease-in-out infinite;
+}
+.heroes-root .hr-cell-target {
+  background: rgba(212, 168, 73, 0.25);
+  border-color: var(--hr-gold);
+  cursor: pointer;
+  animation: hr-pulse 1.4s ease-in-out infinite;
+}
+
+.heroes-root .hr-unit {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* emoji 大小：根据格子宽度相对设定，最大不超过 28px */
+  font-size: clamp(18px, 6vw, 32px);
+  line-height: 1;
+  transition:
+    left 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+}
+.heroes-root .hr-unit-active {
+  z-index: 2;
+}
+.heroes-root .hr-unit-active::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 168, 73, 0.5) 0%, transparent 70%);
+  animation: hr-pulse-ring 1.2s ease-out infinite;
+}
+.heroes-root .hr-unit-dead {
+  opacity: 0;
+  transform: scale(0.5) rotate(20deg);
+  pointer-events: none;
+  transition: all 300ms;
+}
+.heroes-root .hr-unit-targetable {
+  cursor: pointer;
+}
+.heroes-root .hr-unit-targetable:not(.hr-unit-selected) .hr-unit-emoji {
+  animation: hr-bounce 1.2s ease-in-out infinite;
+}
+
+/* 可攻击的敌人：红色脉动边框（区分于法术目标的金色） */
+.heroes-root .hr-unit-enemy.hr-unit-targetable::before {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border: 2px solid #ff4040;
+  border-radius: 50%;
+  animation: hr-pulse-red 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes hr-pulse-red {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.08); }
+}
+
+.heroes-root .hr-hp-bar {
+  position: absolute;
+  top: 2px;
+  left: 8%;
+  right: 8%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 1;
+}
+.heroes-root .hr-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5fa84a 0%, #8de070 100%);
+  transition: width 250ms;
+}
+.heroes-root .hr-hp-fill.low {
+  background: linear-gradient(90deg, #c83232 0%, #e85a5a 100%);
+}
+
+/* emoji 在容器中央上偏（给 HP 条留位置） */
+.heroes-root .hr-unit-emoji {
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
+}
+
+/* 单位下方阵营光晕 —— 蓝/红椭圆作为底色，远看也能区分 */
+.heroes-root .hr-unit-aura {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 30%;
+  border-radius: 50%;
+  z-index: 0;
+  filter: blur(2px);
+  opacity: 0.85;
+}
+.heroes-root .hr-unit-ally .hr-unit-aura {
+  background: radial-gradient(ellipse, rgba(74, 127, 200, 0.95) 0%, rgba(74, 127, 200, 0) 70%);
+}
+.heroes-root .hr-unit-enemy .hr-unit-aura {
+  background: radial-gradient(ellipse, rgba(200, 50, 50, 0.95) 0%, rgba(200, 50, 50, 0) 70%);
+}
+
+/* 敌方 emoji 加红色色调 + 圆形红边 */
+.heroes-root .hr-unit-enemy .hr-unit-emoji {
+  filter:
+    drop-shadow(0 0 3px rgba(200, 50, 50, 0.9))
+    drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+/* 我方 emoji 蓝色色调 */
+.heroes-root .hr-unit-ally .hr-unit-emoji {
+  filter:
+    drop-shadow(0 0 3px rgba(74, 127, 200, 0.9))
+    drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* HP 条放在格子顶部 + 双色 */
+.heroes-root .hr-unit-ally .hr-hp-bar { background: rgba(0, 0, 0, 0.7); }
+.heroes-root .hr-unit-enemy .hr-hp-bar { background: rgba(0, 0, 0, 0.7); }
+.heroes-root .hr-unit-enemy .hr-hp-fill {
+  background: linear-gradient(90deg, #c83232 0%, #ff7070 100%);
+}
+.heroes-root .hr-unit-enemy .hr-hp-fill.low {
+  background: linear-gradient(90deg, #8a1f1f 0%, #c83232 100%);
+}
+
+/* 选中态（布阵） */
+.heroes-root .hr-unit-selected .hr-unit-aura {
+  filter: blur(0);
+  opacity: 1;
+  background: radial-gradient(ellipse, rgba(255, 216, 122, 0.95) 0%, rgba(255, 216, 122, 0) 70%) !important;
+}
+.heroes-root .hr-unit-selected::before {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border: 2px dashed var(--hr-gold-light);
+  border-radius: 8px;
+  animation: hr-rotate 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes hr-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 远程被贴身减伤角标 */
+.heroes-root .hr-penalty-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200, 50, 50, 0.95);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  z-index: 2;
+  animation: hr-pulse 1.2s ease-in-out infinite;
+}
+
+/* ──────── 飘字 ──────── */
+.heroes-root .hr-float {
+  position: absolute;
+  font-family: var(--font-heroes-display), serif;
+  font-weight: 900;
+  pointer-events: none;
+  animation: hr-float-up 1s ease-out forwards;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+.heroes-root .hr-float-damage { color: #ff5050; font-size: 18px; }
+.heroes-root .hr-float-heal   { color: #5fff7a; font-size: 18px; }
+.heroes-root .hr-float-buff   { color: var(--hr-gold-light); font-size: 22px; }
+
+/* ──────── 星星 ──────── */
+.heroes-root .hr-star {
+  font-size: 18px;
+  color: #444;
+  text-shadow: none;
+}
+.heroes-root .hr-star.on {
+  color: var(--hr-gold-light);
+  text-shadow: 0 0 6px rgba(255, 216, 122, 0.6);
+}
+
+/* ──────── 法术按钮 ──────── */
+.heroes-root .hr-spell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--hr-purple) 0%, #5b3a8c 100%);
+  border: 2px solid #c5a9ff;
+  font-size: 28px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: transform 100ms;
+}
+.heroes-root .hr-spell:active { transform: scale(0.95); }
+.heroes-root .hr-spell.hr-spell-disabled {
+  background: linear-gradient(180deg, #555 0%, #333 100%);
+  border-color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.heroes-root .hr-spell.hr-spell-active {
+  outline: 3px solid var(--hr-gold-light);
+  outline-offset: 2px;
+}
+.heroes-root .hr-spell-cost {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #2a4d80;
+  border: 2px solid #b6d6ff;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ──────── 关卡卡片 ──────── */
+.heroes-root .hr-level-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 10px;
+  border-radius: 12px;
+  background: var(--hr-card);
+  border: 2px solid var(--hr-gold);
+  cursor: pointer;
+  transition: transform 100ms;
+  position: relative;
+}
+.heroes-root .hr-level-card:active { transform: scale(0.97); }
+.heroes-root .hr-level-card.locked {
+  background: #2a2230;
+  border-color: #555;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ──────── 动画 ──────── */
+@keyframes hr-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+@keyframes hr-pulse-ring {
+  0%   { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes hr-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes hr-float-up {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-32px); opacity: 0; }
+}
+@keyframes hr-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes hr-victory-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  50%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.heroes-root .hr-fade-in { animation: hr-fade-in 240ms ease-out both; }
+.heroes-root .hr-victory-pop { animation: hr-victory-pop 0.6s cubic-bezier(0.22, 1.4, 0.4, 1) both; }
+
+/* ──────── 隐藏滚动条 ──────── */
+.heroes-root .hr-scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.heroes-root .hr-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* ──────── 进度条 ──────── */
+.heroes-root .hr-bar {
+  position: relative;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 12px;
+}
+.heroes-root .hr-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--hr-gold) 0%, var(--hr-gold-light) 100%);
+  transition: width 400ms;
+}
+.heroes-root .hr-bar-fill.mana {
+  background: linear-gradient(90deg, #4a7fc8 0%, #8db5ff 100%);
+}
+
+/* ──────── 工具 ──────── */
+.heroes-root .hr-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 73, 0.4), transparent);
+  margin: 12px 0;
+}

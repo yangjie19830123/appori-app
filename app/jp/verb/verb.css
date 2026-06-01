@@ -1,0 +1,82 @@
+/* app/jp/verb/verb.css */
+/* Scoped to .verb-segment so it doesn't bleed into other tools */
+
+.verb-segment {
+  /* ─── Color palette ────────────────────────────── */
+  --v-bg: #FFF8F0;          /* Cream background */
+  --v-surface: #FFFFFF;     /* Card background */
+  --v-accent: #F97316;      /* Orange-500 - primary action */
+  --v-accent-dark: #EA580C; /* Orange-600 - hover */
+  --v-accent-light: #FED7AA; /* Orange-200 - light backgrounds */
+  --v-accent-soft: #FFEDD5;  /* Orange-100 - subtle */
+  --v-ink: #1F2937;         /* Gray-800 - body text */
+  --v-ink-muted: #6B7280;   /* Gray-500 - secondary text */
+  --v-ink-faint: #9CA3AF;   /* Gray-400 - tertiary */
+  --v-border: #FDE68A;      /* Yellow-200 - playful borders */
+  --v-border-soft: #F3F4F6; /* Gray-100 */
+  --v-success: #16A34A;     /* Green-600 */
+  --v-success-light: #DCFCE7;
+  --v-warning: #FACC15;     /* Yellow-400 */
+  --v-info: #3B82F6;        /* Blue-500 */
+  --v-purple: #A855F7;      /* For irregular badge */
+  --v-shadow: 0 1px 3px rgba(249, 115, 22, 0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --v-shadow-lg: 0 4px 12px rgba(249, 115, 22, 0.10), 0 2px 4px rgba(0,0,0,0.04);
+
+  background: var(--v-bg);
+  color: var(--v-ink);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+
+/* Display font for headings (kanji + romaji) */
+.verb-segment .v-display {
+  font-family: "Hiragino Mincho Pro", "Yu Mincho", "MS Mincho", serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Animations ─────────────────────────────────── */
+@keyframes verb-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verb-segment .v-fade-in {
+  animation: verb-fade-in 0.35s ease-out backwards;
+}
+
+@keyframes verb-pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
+}
+
+.verb-segment .v-pulse {
+  animation: verb-pulse-soft 2s ease-in-out infinite;
+}
+
+/* ─── Card hover lift ───────────────────────────── */
+.verb-segment .v-card-lift {
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
+}
+
+.verb-segment .v-card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--v-shadow-lg);
+}
+
+/* ─── Progress ring (SVG circle) ────────────────── */
+.verb-segment .v-ring-track {
+  fill: none;
+  stroke: var(--v-border-soft);
+  stroke-width: 4;
+}
+
+.verb-segment .v-ring-progress {
+  fill: none;
+  stroke: var(--v-accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease-out;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}

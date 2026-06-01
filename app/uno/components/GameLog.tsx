@@ -1,0 +1,83 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+interface Props {
+  log: { ts: number; text: string }[];
+}
+
+export function GameLog({ log }: Props) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [latest, setLatest] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (log.length === 0) return;
+    const last = log[log.length - 1];
+    setLatest(last.text);
+    const t = setTimeout(() => setLatest(null), 2200);
+    return () => clearTimeout(t);
+  }, [log]);
+
+  useEffect(() => {
+    if (open && ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [open, log.length]);
+
+  return (
+    <>
+      {/* Toast: 最新一条 */}
+      {latest && (
+        <div className="pointer-events-none fixed top-3 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full uno-bg-ink/95 border border-white/15 shadow-lg text-sm font-bold uno-anim-deal max-w-[90vw] text-center">
+          {latest}
+        </div>
+      )}
+
+      {/* 浮动按钮 + 抽屉 */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="fixed bottom-3 right-3 z-30 w-10 h-10 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm grid place-items-center text-lg"
+        aria-label="游戏日志"
+      >
+        📜
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setOpen(false)}>
+          <div
+            className="w-full max-h-[60vh] uno-bg-ink border-t border-white/10 rounded-t-3xl p-4 overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+            ref={ref}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="uno-font-display italic text-lg">游戏记录</h4>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="uno-text-cream/60 text-sm"
+              >
+                关闭
+              </button>
+            </div>
+            <ul className="space-y-1.5 text-sm">
+              {log.map((l, i) => (
+                <li key={i} className="uno-text-cream/85">
+                  <span className="uno-text-cream/40 mr-2">
+                    {new Date(l.ts).toLocaleTimeString("zh-CN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                  </span>
+                  {l.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
