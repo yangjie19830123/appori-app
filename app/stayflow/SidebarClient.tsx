@@ -47,12 +47,18 @@ function Icon({ name, size = 16 }: { name: string; size?: number }) {
   )
 }
 
-export default function SidebarClient() {
+interface Props {
+  customerName: string
+  licenseCode: string
+}
+
+export default function SidebarClient({ customerName, licenseCode }: Props) {
   const pathname = usePathname()
   const router   = useRouter()
   const [open, setOpen] = useState(false)
 
   const currentLabel = NAV.flatMap(g => g.items).find(i => i.path === pathname)?.label ?? "StayFlow"
+  const initial = customerName.slice(0, 1) || "U"
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -98,12 +104,15 @@ export default function SidebarClient() {
           ))}
         </nav>
 
+        {/* User info */}
         <div className="sf-user-row">
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8 }}>
-            <div className="sf-avatar">管</div>
+            <div className="sf-avatar">{initial}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 500 }}>管理者</div>
-              <div style={{ fontSize: 10, color: "var(--sf-ink3)" }}>StayFlow</div>
+              <div style={{ fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {customerName}
+              </div>
+              <div style={{ fontSize: 10, color: "var(--sf-ink3)" }}>{licenseCode}</div>
             </div>
             <button onClick={handleLogout}
               style={{ color: "var(--sf-ink3)", padding: 4, cursor: "pointer", background: "none", border: "none" }}
@@ -114,7 +123,7 @@ export default function SidebarClient() {
         </div>
       </aside>
 
-      {/* Topbar — fixed, offset by sidebar width */}
+      {/* Topbar */}
       <div style={{
         position: "fixed", top: 0, left: 220, right: 0, zIndex: 50,
         background: "var(--sf-bg2)", borderBottom: "0.5px solid var(--sf-ink4)",
