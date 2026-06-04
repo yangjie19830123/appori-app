@@ -1,12 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 export default function StayFlowLogin() {
+  const router  = useRouter()
   const [email, setEmail]   = useState("")
   const [step, setStep]     = useState<"input"|"sending"|"sent"|"error">("input")
   const [errMsg, setErrMsg] = useState("")
+
+  // 已登录状态直接跳转到dashboard
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/stayflow/dashboard")
+    })
+  }, [])
 
   const handleSend = async () => {
     if (!email.trim()) return
